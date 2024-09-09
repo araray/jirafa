@@ -2,3 +2,5 @@ JIRA_URL = "https://your-domain.atlassian.net"
 JIRA_USERNAME = "your-email@example.com"
 JIRA_API_TOKEN = "your-api-token"
 JIRA_PROJECT_KEY = "PROJECT_KEY"
+DEFAULT_MAX_RESULTS = 0
+ITEMS_PER_BATCH = 50
