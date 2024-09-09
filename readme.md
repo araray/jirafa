@@ -18,7 +18,7 @@ The **JIRA Ticket Utility Tool** is a command-line interface (CLI) that allows y
 1. Clone the repository:
 
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/araray/jirafa
     ```
 
 2. Navigate into the project directory:
