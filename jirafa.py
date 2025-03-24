@@ -13,10 +13,10 @@ CONFIG_FILE = "jirafa.toml"
 def load_config(config_file=CONFIG_FILE):
     """
     Loads configuration from a TOML file if available.
-    
+
     Args:
         config_file (str): Path to the TOML configuration file.
-        
+
     Returns:
         dict: Configuration data loaded from the file, or an empty dict if file not found.
     """
@@ -29,13 +29,13 @@ def load_config(config_file=CONFIG_FILE):
 def get_jira_client(config):
     """
     Returns a JIRA client object using credentials from the config, environment variables, or CLI arguments.
-    
+
     Args:
         config (dict): Configuration data that contains JIRA credentials.
-    
+
     Returns:
         jira.JIRA: Authenticated JIRA client instance.
-        
+
     Raises:
         ValueError: If JIRA URL, username, or API token is missing.
     """
@@ -45,7 +45,7 @@ def get_jira_client(config):
 
     if not jira_url or not username or not api_token:
         raise ValueError("JIRA URL, Username, and API token must be provided either via config, environment, or CLI.")
-    
+
     return JIRA(server=jira_url, basic_auth=(username, api_token))
 
 def safe_getattr(obj, attr_chain, default=None):
@@ -57,7 +57,7 @@ def safe_getattr(obj, attr_chain, default=None):
         obj: The object to traverse.
         attr_chain (str): A dot-separated string of nested attribute names.
         default: The value to return if an attribute is missing.
-    
+
     Returns:
         The value of the attribute or the default value.
     """
@@ -71,7 +71,7 @@ def safe_getattr(obj, attr_chain, default=None):
 def create_jira_ticket(jira, project_key, summary, description_file_path, priority='Medium', epic_key=None, issue_type='Task'):
     """
     Creates a JIRA ticket with the given details and optionally links it to an epic.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
         project_key (str): JIRA project key where the ticket will be created.
@@ -80,10 +80,10 @@ def create_jira_ticket(jira, project_key, summary, description_file_path, priori
         priority (str, optional): Priority of the ticket (default is 'Medium').
         epic_key (str, optional): Epic key to link the ticket to (default is None).
         issue_type (str, optional): Issue type, e.g., Task, Story, Bug (default is 'Task').
-    
+
     Returns:
         jira.Issue: The created JIRA issue object.
-    
+
     Raises:
         FileNotFoundError: If the provided description file path does not exist.
     """
@@ -92,7 +92,7 @@ def create_jira_ticket(jira, project_key, summary, description_file_path, priori
             description = file.read()
     else:
         raise FileNotFoundError(f"Markdown file {description_file_path} not found.")
-    
+
     issue_fields = {
         'project': {'key': project_key},
         'summary': summary,
@@ -113,7 +113,7 @@ def create_jira_ticket(jira, project_key, summary, description_file_path, priori
 def edit_jira_ticket(jira, issue_key, field_name, new_value):
     """
     Edit a specific field of a JIRA ticket.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
         issue_key (str): Key of the JIRA ticket to be edited.
@@ -127,12 +127,12 @@ def edit_jira_ticket(jira, issue_key, field_name, new_value):
 def retrieve_ticket_fields(jira, issue_key, field_names):
     """
     Retrieve specific fields from a JIRA ticket.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
         issue_key (str): Key of the JIRA ticket.
         field_names (list): List of field names to retrieve.
-    
+
     Returns:
         dict: A dictionary of field names and their corresponding values from the JIRA ticket.
     """
@@ -148,7 +148,7 @@ def retrieve_ticket_fields(jira, issue_key, field_names):
 def add_comment(jira, issue_key, comment):
     """
     Add a comment to a JIRA ticket.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
         issue_key (str): Key of the JIRA ticket.
@@ -160,7 +160,7 @@ def add_comment(jira, issue_key, comment):
 def list_tickets(jira, project_key, fields=['summary', 'status', 'key'], extra_fields=None, output_format='table', filters=None, max_results=0, items_per_batch=50):
     """
     List JIRA tickets from a project, with flexible field and output options.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
         project_key (str): JIRA project key to list tickets from.
@@ -170,7 +170,7 @@ def list_tickets(jira, project_key, fields=['summary', 'status', 'key'], extra_f
         filters (list, optional): List of JQL filters to apply (default is None).
         max_results (int, optional): Maximum number of tickets to return (default is 0, meaning all).
         items_per_batch (int, optional): Number of items to retrieve per batch (default is 50).
-    
+
     Returns:
         None
     """
@@ -179,7 +179,7 @@ def list_tickets(jira, project_key, fields=['summary', 'status', 'key'], extra_f
 
     # Prepare the JQL query
     jql_query = f"project = {project_key}"
-    
+
     # Add filters to the JQL query
     if filters:
         filter_query = " AND ".join(filters)
@@ -200,7 +200,7 @@ def list_tickets(jira, project_key, fields=['summary', 'status', 'key'], extra_f
             break
 
     tickets_data = []
-    
+
     if output_format == 'table':
         for issue in total_issues:
             ticket = []
@@ -244,10 +244,10 @@ def list_tickets(jira, project_key, fields=['summary', 'status', 'key'], extra_f
 def list_projects(jira):
     """
     List all available JIRA projects.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
-    
+
     Returns:
         None
     """
@@ -259,7 +259,7 @@ def list_projects(jira):
 def run_jql(jira, jql_query, fields=['summary', 'status', 'assignee', 'key'], max_results=0, items_per_batch=50, output_format='table'):
     """
     Run an arbitrary JQL query and return all matching tickets.
-    
+
     Args:
         jira (jira.JIRA): Authenticated JIRA client instance.
         jql_query (str): JQL query string to execute.
@@ -267,7 +267,7 @@ def run_jql(jira, jql_query, fields=['summary', 'status', 'assignee', 'key'], ma
         max_results (int, optional): Maximum number of tickets to retrieve (default is 0, meaning all).
         items_per_batch (int, optional): Number of items to retrieve per batch (default is 50).
         output_format (str, optional): Output format - 'table', 'csv', or 'json' (default is 'table').
-    
+
     Returns:
         None
     """
@@ -332,7 +332,7 @@ def run_jql(jira, jql_query, fields=['summary', 'status', 'assignee', 'key'], ma
 @click.pass_context
 def cli(ctx):
     """
-    JIRA Ticket Utility Tool to interact with JIRA API for creating, retrieving, editing, and managing tickets.
+    Jirafa: A command-line tool to interact with JIRA API for creating, retrieving, editing, and managing tickets.
     """
     ctx.obj = load_config()
 
@@ -345,7 +345,7 @@ def cli(ctx):
 def list(ctx, project_key, fields, filter, output):
     """
     List tickets in a JIRA project with optional filters and custom output.
-    
+
     Args:
         project_key (str): JIRA project key.
         fields (str): Comma-separated list of fields to display.
@@ -354,14 +354,14 @@ def list(ctx, project_key, fields, filter, output):
     """
     jira = get_jira_client(ctx.obj)
     fields = fields.split(",")
-    
+
     filters = []
     if filter:
         for f in filter:
             key, value = f.split(":", 1)
             value = value.strip('"')
             filters.append(f"{key} = '{value}'")
-    
+
     list_tickets(jira, project_key, fields=fields, filters=filters, output_format=output)
 
 @cli.command()
@@ -375,7 +375,7 @@ def list(ctx, project_key, fields, filter, output):
 def create(ctx, module_name, description_file, priority, epic_key, project_key, issue_type):
     """
     Create a new JIRA ticket.
-    
+
     Args:
         module_name (str): Name of the module related to the ticket.
         description_file (str): Path to the file containing the ticket description.
@@ -400,7 +400,7 @@ def create(ctx, module_name, description_file, priority, epic_key, project_key, 
 def edit(ctx, issue_key, field_name, new_value):
     """
     Edit a specific field of a JIRA ticket.
-    
+
     Args:
         issue_key (str): JIRA ticket key.
         field_name (str): The field to be updated.
@@ -416,7 +416,7 @@ def edit(ctx, issue_key, field_name, new_value):
 def retrieve(ctx, issue_key, fields):
     """
     Retrieve specific fields from a JIRA ticket.
-    
+
     Args:
         issue_key (str): JIRA ticket key.
         fields (tuple): List of fields to retrieve.
@@ -432,7 +432,7 @@ def retrieve(ctx, issue_key, fields):
 def comment(ctx, issue_key, comment):
     """
     Add a comment to a JIRA ticket.
-    
+
     Args:
         issue_key (str): JIRA ticket key.
         comment (str): Comment to be added.
@@ -459,7 +459,7 @@ def projects(ctx):
 def jql(ctx, jql_query, fields, max_results, items_per_batch, output):
     """
     Run an arbitrary JQL query and list matching tickets.
-    
+
     Args:
         jql_query (str): JQL query string.
         fields (str): Comma-separated list of fields to display.
@@ -479,4 +479,3 @@ def jql(ctx, jql_query, fields, max_results, items_per_batch, output):
 
 if __name__ == '__main__':
     cli()
-

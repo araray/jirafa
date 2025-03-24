@@ -1,8 +1,8 @@
-# JIRA Ticket Utility Tool
+# Jirafa
 
 ## Overview
 
-The **JIRA Ticket Utility Tool** is a command-line interface (CLI) that allows you to interact with JIRA from your terminal. You can create, edit, retrieve, list, and run queries on JIRA tickets using this tool. It provides various output formats (table, JSON, CSV) and supports complex JQL queries.
+**Jirafa** is a command-line interface (CLI) that allows you to interact with JIRA from your terminal. You can create, edit, retrieve, list, and run queries on JIRA tickets using this tool. It provides various output formats (table, JSON, CSV) and supports complex JQL queries.
 
 ## Features
 
@@ -41,9 +41,9 @@ The tool requires JIRA credentials to interact with the JIRA API. You can provid
    - `JIRA_URL`
    - `JIRA_USERNAME`
    - `JIRA_API_TOKEN`
-   
+
 2. **TOML configuration file** (`jirafa.toml`):
-   
+
    Example `jirafa.toml` file:
 
     ```toml

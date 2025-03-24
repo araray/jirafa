@@ -1,8 +1,8 @@
-# JIRA Ticket Utility Tool Documentation
+# Jirafa Documentation
 
 ## Overview
 
-The JIRA Ticket Utility Tool is a command-line interface (CLI) tool for interacting with JIRA using the JIRA REST API. It allows users to perform operations like creating tickets, editing ticket fields, listing tickets, and running custom JQL queries, all from the command line.
+Jirafa is a command-line interface (CLI) tool for interacting with JIRA using the JIRA REST API. It allows users to perform operations like creating tickets, editing ticket fields, listing tickets, and running custom JQL queries, all from the command line.
 
 The tool is written in Python and uses the `Click` library to build the CLI. It also utilizes the `JIRA` library to interact with the JIRA API.
 
@@ -216,4 +216,3 @@ jirafa.py jql <jql_query> --fields <fields> --max_results <max_results> --items_
    ```
 
 This CLI tool is highly flexible and customizable for different JIRA use cases, allowing users to easily manage JIRA issues from the command line.
-
