@@ -256,6 +256,103 @@ def list_projects(jira):
     for project in projects:
         click.echo(f"{project.key} - {project.name}")
 
+def get_ticket_comments(jira, issue_key, filters=None, max_results=0, output_format='table'):
+    """
+    Retrieve comments from a JIRA ticket with optional filtering.
+
+    Args:
+        jira (jira.JIRA): Authenticated JIRA client instance.
+        issue_key (str): Key of the JIRA ticket.
+        filters (list, optional): List of filters to apply to comments (e.g., author, date, text).
+        max_results (int, optional): Maximum number of comments to retrieve (default is 0, meaning all).
+        output_format (str, optional): Format of the output - 'table', 'csv', or 'json' (default is 'table').
+
+    Returns:
+        list: Comments data in the requested format.
+    """
+    issue = jira.issue(issue_key)
+    comments = jira.comments(issue)
+
+    # Apply filters if provided
+    filtered_comments = []
+    for comment in comments:
+        include_comment = True
+
+        if filters:
+            for filter_str in filters:
+                try:
+                    field, value = filter_str.split(":", 1)
+                    field = field.lower().strip()
+                    value = value.lower().strip('"\'')
+
+                    if field == "author" and value not in comment.author.displayName.lower():
+                        include_comment = False
+                        break
+                    elif field == "text" and value not in comment.body.lower():
+                        include_comment = False
+                        break
+                    elif field == "date":
+                        # Parse date ranges or specific dates
+                        comment_date = comment.created[:10]  # Get YYYY-MM-DD part
+                        if "to" in value:
+                            start_date, end_date = value.split("to")
+                            if (comment_date < start_date.strip() or
+                                comment_date > end_date.strip()):
+                                include_comment = False
+                                break
+                        elif comment_date != value:
+                            include_comment = False
+                            break
+                except (ValueError, AttributeError) as e:
+                    click.echo(f"Warning: Invalid filter format or field: {filter_str}. Error: {e}", err=True)
+                    continue
+
+        if include_comment:
+            filtered_comments.append(comment)
+
+    # Apply max_results limitation
+    if max_results > 0 and len(filtered_comments) > max_results:
+        filtered_comments = filtered_comments[:max_results]
+
+    comments_data = []
+
+    # Format the comments based on the requested output format
+    for comment in filtered_comments:
+        comment_data = {
+            'id': comment.id,
+            'author': comment.author.displayName,
+            'date': comment.created[:19],  # Keep only YYYY-MM-DD HH:MM:SS
+            'body': comment.body
+        }
+
+        if output_format == 'table':
+            comments_data.append([
+                comment_data['id'],
+                comment_data['author'],
+                comment_data['date'],
+                comment_data['body'][:50] + ('...' if len(comment_data['body']) > 50 else '')
+            ])
+        else:
+            comments_data.append(comment_data)
+
+    # Output the comments in the requested format
+    if output_format == 'table':
+        headers = ['ID', 'Author', 'Date', 'Comment']
+        click.echo(tabulate(comments_data, headers=headers, tablefmt="plain"))
+    elif output_format == 'csv':
+        with open(f'{issue_key}_comments.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['ID', 'Author', 'Date', 'Comment'])
+            for comment in comments_data:
+                writer.writerow([comment['id'], comment['author'], comment['date'], comment['body']])
+        click.echo(f"Comments written to {issue_key}_comments.csv")
+    elif output_format == 'json':
+        with open(f'{issue_key}_comments.json', 'w') as jsonfile:
+            json.dump(comments_data, jsonfile, indent=4)
+        click.echo(f"Comments written to {issue_key}_comments.json")
+
+    return comments_data
+
 def run_jql(jira, jql_query, fields=['summary', 'status', 'assignee', 'key'], max_results=0, items_per_batch=50, output_format='table'):
     """
     Run an arbitrary JQL query and return all matching tickets.
@@ -476,6 +573,25 @@ def jql(ctx, jql_query, fields, max_results, items_per_batch, output):
     fields = fields.split(",")
     run_jql(jira, jql_query, fields=fields, max_results=max_results, items_per_batch=items_per_batch, output_format=output)
 
+@cli.command()
+@click.argument('issue_key')
+@click.option('--filter', '-f', multiple=True, help="Filter comments in key:value format, e.g., 'author:JohnDoe', 'text:important', 'date:2023-01-01'")
+@click.option('--max_results', default=0, help="Maximum number of comments to fetch (0 for all)")
+@click.option('--output', default="table", type=click.Choice(['table', 'csv', 'json'], case_sensitive=False), help="Output format")
+@click.pass_context
+def comments(ctx, issue_key, filter, max_results, output):
+    """
+    Retrieve comments from a JIRA ticket with optional filtering.
+
+    Args:
+        issue_key (str): JIRA ticket key.
+        filter (tuple): Key:value pairs for comment filters (author, text, date).
+        max_results (int): Maximum number of comments to fetch.
+        output (str): Output format - table, csv, or json.
+    """
+    jira = get_jira_client(ctx.obj)
+    max_results = int(max_results)
+    get_ticket_comments(jira, issue_key, filters=filter, max_results=max_results, output_format=output)
 
 if __name__ == '__main__':
     cli()

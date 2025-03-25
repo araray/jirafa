@@ -119,6 +119,23 @@ Runs an arbitrary JQL query and returns matching tickets in a specified format.
   - `items_per_batch`: Number of tickets to fetch per batch.
   - `output_format`: Output format (table, CSV, JSON).
 
+### 11. `comments`
+
+Retrieves comments from a JIRA ticket with optional filtering.
+
+#### Usage:
+
+```bash
+jirafa.py comments <issue_key> --filter <filters> --max_results <max_results> --output <output>
+```
+
+- **Filters**:
+
+  - author:<name>: Filter comments by author name
+  - text:<string>: Filter comments containing specific text
+  - date:<yyyy-mm-dd>: Filter comments from a specific date
+  - date:<start_date> to <end_date>: Filter comments within a date range
+
 ## CLI Commands
 
 The tool uses the `Click` library to define CLI commands.
