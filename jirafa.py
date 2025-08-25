@@ -462,31 +462,27 @@ def list(ctx, project_key, fields, filter, output):
     list_tickets(jira, project_key, fields=fields, filters=filters, output_format=output)
 
 @cli.command()
-@click.argument('module_name')
+@click.argument('summary')
 @click.argument('description_file')
 @click.option('--priority', default="Medium", help="Priority of the ticket")
 @click.option('--epic_key', help="Epic key to link the ticket to")
 @click.option('--project_key', default=None, help="JIRA project key")
 @click.option('--issue_type', default="Task", help="Issue type, e.g., Task, Story, Bug")
 @click.pass_context
-def create(ctx, module_name, description_file, priority, epic_key, project_key, issue_type):
+def create(ctx, summary, description_file, priority, epic_key, project_key, issue_type):
     """
     Create a new JIRA ticket.
 
+
     Args:
-        module_name (str): Name of the module related to the ticket.
-        description_file (str): Path to the file containing the ticket description.
-        priority (str): Priority of the ticket.
-        epic_key (str, optional): Epic key to link the ticket to.
-        project_key (str): JIRA project key.
-        issue_type (str): Type of issue (Task, Story, Bug, etc.).
+    summary (str): Title/summary of the ticket.
+    description_file (str): Path to the file containing the ticket description.
     """
     jira = get_jira_client(ctx.obj)
     project_key = project_key or ctx.obj.get('JIRA_PROJECT_KEY', os.getenv('JIRA_PROJECT_KEY'))
     if not project_key:
         click.echo("Error: No project key provided.", err=True)
         sys.exit(1)
-    summary = f"Update {module_name} for Python 3.12 Compatibility"
     create_jira_ticket(jira, project_key, summary, description_file, priority, epic_key, issue_type)
 
 @cli.command()
