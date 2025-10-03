@@ -3,8 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-#
+# Jirafa jirafinha
 jirafa.toml
+src
+source.me
 
 # C extensions
 *.so
